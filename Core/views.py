@@ -191,4 +191,55 @@ def PasswordResetSent(request, reset_id):
     
 
 def ResetPassword(request, reset_id):
+    try:
+        reset_id = PasswordReset.objects.get(reset_id=reset_id)
+
+        if request.method == 'POST':
+            password = request.POST.get('password')
+            confirm_password = request.POST.get('confirm_password')
+
+            passwords_have_error = False
+
+            if password != confirm_password:
+                passwords_have_error = True
+                messages.error(request, 'Passwords do not match')
+
+            if len(password) < 5:
+                passwords_have_error = True
+                messages.error(request, 'Password must be at least 5 characters long')
+
+            # check to make sure link has not expired
+            expiration_time = reset_id.created_when + timezone.timedelta(minutes=10)
+
+            if timezone.now() > expiration_time:
+
+                 # delete reset id if expired
+                reset_id.delete()
+
+                passwords_have_error = True
+                messages.error(request, 'Reset link has expired')
+            
+            # reset password
+            if not passwords_have_error:
+                user = reset_id.user
+                user.set_password(password)
+                user.save()
+                
+                # delete reset id after use
+                reset_id.delete()
+
+                # redirect to login
+                messages.success(request, 'Password reset. Proceed to login')
+                return redirect('login')
+
+            else:
+                # redirect back to password reset page and display errors
+                return redirect('reset-password', reset_id=reset_id)
+    
+    except PasswordReset.DoesNotExist:
+        
+        # redirect to forgot password page if code does not exist
+        messages.error(request, 'Invalid reset id')
+        return redirect('forgot-password')
+    
     return render(request, 'reset_password.html')
