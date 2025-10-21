@@ -4,7 +4,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.conf import settings
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMessage, EmailMultiAlternatives
+from django.contrib.sites.shortcuts import get_current_site
 from django.utils import timezone
 from django.urls import reverse
 from .models import *
@@ -94,21 +95,47 @@ def ForgotPassword(request):
             new_password_reset = PasswordReset(user=user)
             new_password_reset.save()
 
-            from django.contrib.sites.shortcuts import get_current_site
+            
+           # Build reset URL
             current_site = get_current_site(request)
             domain = current_site.domain
-            password_reset_url = f"http://{domain}{reverse('reset-password', kwargs={'reset_id': new_password_reset.reset_id})}"
+            reset_url = f"http://{domain}{reverse('reset-password', kwargs={'reset_id': new_password_reset.reset_id})}"
 
-            email_body = f"Reset your password using the link below:\n\n{password_reset_url}"
+            # Create email content
+            subject = "Reset Your Password"
+            text_content = f"Reset your password using the link below:\n{reset_url}"
+            html_content = f"""
+                <html>
+                    <body style="font-family: Arial, sans-serif; color: #333;">
+                        <h2>Password Reset Request</h2>
+                        <p>Hi {user.username},</p>
+                        <p>Click the button below to reset your password:</p>
+                        <p>
+                            <a href="{reset_url}" 
+                               style="display:inline-block;
+                                      background-color:#007bff;
+                                      color:white;
+                                      padding:10px 20px;
+                                      text-decoration:none;
+                                      border-radius:5px;
+                                      font-weight:bold;">
+                                Reset Password
+                            </a>
+                        </p>
+                        <p>If you didn’t request this, you can ignore this email.</p>
+                        <p>Thanks,<br>The Support Team</p>
+                    </body>
+                </html>
+            """
 
-            email_message = EmailMessage(
-                'Reset your password',
-                email_body,
+            # Send email with HTML alternative
+            email_message = EmailMultiAlternatives(
+                subject,
+                text_content,
                 settings.EMAIL_HOST_USER,
                 [email]
             )
-
-            email_message.fail_silently = True
+            email_message.attach_alternative(html_content, "text/html")
             email_message.send()
 
             return redirect('password-reset-sent', reset_id=new_password_reset.reset_id)
