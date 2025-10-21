@@ -10,7 +10,7 @@ from django.urls import reverse
 from .models import *
 
 
-
+@login_required
 def Home(request):
     return render(request, 'index.html')
 
@@ -56,4 +56,30 @@ def RegisterView(request):
     return render(request, 'register.html')
 
 def LoginView(request):
+    if request.method == 'POST':
+
+        # getting user inputs from frontend
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        # authenticate credentials
+        user = authenticate(request=request, username=username, password=password)
+        if user is not None:
+            # login user if login credentials are correct
+            login(request, user)
+
+            # ewdirect to home page
+            return redirect('home')
+        else:
+            # redirect back to the login page if credentials are wrong
+            messages.error(request, 'Invalid username or password')
+            return redirect('login')
+
     return render(request, 'login.html')
+
+def LogoutView(request):
+
+    logout(request)
+
+    # redirect to login page after logout
+    return redirect('login')
