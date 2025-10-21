@@ -86,12 +86,15 @@
               <div class="login-title">
                 <h2 class="text-center text-primary">Register</h2>
               </div>
-              {% if messages %} {% for message in messages %} {% if
-              messages.tags == 'error' %}
-              <div class="alert alert-danger" role="alert">{{message}}</div>
-              {% else %}
-              <div class="alert alert-success" role="alert">{{message}}</div>
-              {% endif %} {% endfor %} {% endif %}
+              {% if messages %} 
+                  {% for message in messages %} 
+                      {% if message.tags == 'error' %}
+                          <div class="alert alert-danger" role="alert">{{message}}</div>
+                      {% else %}
+                          <div class="alert alert-success" role="alert">{{message}}</div>
+                      {% endif %} 
+                  {% endfor %} 
+                {% endif %}
               <form method="POST">
                 {% csrf_token %}
                 <div class="input-group custom">

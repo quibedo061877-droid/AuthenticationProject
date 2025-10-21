@@ -53,7 +53,7 @@ def RegisterView(request):
         else:
             return redirect('register')
 
-    #return render(request, 'register.html')
+    return render(request, 'register.html')
 
 def LoginView(request):
     return render(request, 'login.html')
