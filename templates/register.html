@@ -86,6 +86,12 @@
               <div class="login-title">
                 <h2 class="text-center text-primary">Register</h2>
               </div>
+              {% if messages %} {% for message in messages %} {% if
+              messages.tags == 'error' %}
+              <div class="alert alert-danger" role="alert">{{message}}</div>
+              {% else %}
+              <div class="alert alert-success" role="alert">{{message}}</div>
+              {% endif %} {% endfor %} {% endif %}
               <form method="POST">
                 {% csrf_token %}
                 <div class="input-group custom">
@@ -148,19 +154,6 @@
                   <input
                     type="password"
                     name="password"
-                    class="form-control form-control-lg"
-                    required
-                  />
-                  <div class="input-group-append custom">
-                    <span class="input-group-text"
-                      ><i class="dw dw-padlock1"></i
-                    ></span>
-                  </div>
-                </div>
-                <div class="input-group custom">
-                  <input
-                    type="password"
-                    name="confirm_password"
                     class="form-control form-control-lg"
                     required
                   />
