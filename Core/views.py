@@ -11,4 +11,11 @@ from .models import *
 
 
 
-# Create your views here.
+def Home(request):
+    return render(request, 'index.html')
+
+def RegisterView(request):
+    return render(request, 'register.html')
+
+def LoginView(request):
+    return render(request, 'login.html')
