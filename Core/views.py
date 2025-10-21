@@ -83,3 +83,12 @@ def LogoutView(request):
 
     # redirect to login page after logout
     return redirect('login')
+
+def ForgotPassword(request):
+    return render(request, 'forgot_password.html')
+
+def PasswordResetSent(request, reset_id):
+    return render(request, 'password_reset_sent.html')
+
+def ResetPassword(request, reset_id):
+    return render(request, 'reset_password.html')
