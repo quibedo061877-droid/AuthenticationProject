@@ -218,6 +218,7 @@ def ResetPassword(request, reset_id):
 
                 passwords_have_error = True
                 messages.error(request, 'Reset link has expired')
+                return redirect('forgot-password')
             
             # reset password
             if not passwords_have_error:
